@@ -1,0 +1,16 @@
+@charset "utf-8";
+
+body {
+	margin: 0;
+	padding: 20px;
+}
+.chart {
+	background: #CFD8DC;
+	width: 300px;
+}
+.chart_title {
+	margin: 0;
+	padding: 10px;
+	color: #fff;
+	background: #607D8B;
+}

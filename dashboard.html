@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>AML Dashboard</title>
+	<link rel="stylesheet" href="c3.css" type="text/css">
+	<script src="d3.min.js"></script>
+	<script src="c3.js"></script>
+</head>
+<body>
+	<div id="chart"></div>
+	<script>
+
+		var jsondata1 = {
+			"KYC_status": {
+				inprogress: [20, 10],
+				clean: [10],
+				str:[20,30,10],
+				whitelist:[10],
+				falsepossitive:[5,5]
+			}
+		};
+		var jsondata2 = {
+			"KYC_status": {
+				"inprogress":"204, 170",
+				"clean": "103",
+				"str": "260,340,10",
+				"whitelist": "150",
+				"falsepossitive": "65,5"
+			}
+		};
+		var statuses = jsondata2.KYC_status, dataArray = [], grandTotal = 0;
+
+		for (var status in statuses) {
+			if ( statuses.hasOwnProperty( status ) ) {
+				var subTotal = parseInt(statuses[status].split(',').reduce(function(total, num) {
+					return parseInt(total) + parseInt(num);
+				}));
+				var arr = [status, subTotal];
+				dataArray.push(arr);
+				grandTotal += subTotal;
+			}
+		}
+
+		var chart = c3.generate({
+			bindto: '#chart',
+			data: {
+				json: jsondata1.KYC_status, // requires pure json with formatted numbers
+//				columns: dataArray, // requires json converted to array
+				type : 'donut',
+				onclick: function (d, i) { console.log("onclick", d, i); },
+				onmouseover: function (d, i) { console.log("onmouseover", d, i); },
+				onmouseout: function (d, i) { console.log("onmouseout", d, i); }
+			},
+			donut: {
+				title: grandTotal, /* Total here */
+				label: {
+					format: function( val, ratio, id ) {
+						return val;
+					}
+				}
+			},
+			tooltip: {
+				format: {
+					title: function(d) {
+						return 'Workflows';
+					},
+					value: function(val, ratio, id) {
+						console.log(val + ' ' + ratio + ' ' + id);
+					}
+				}
+			},
+			color: {
+				pattern: ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c']
+			}
+		});
+
+		function getGrandTotal( data ) {
+
+
+			return total;
+		}
+
+		/* Dynamically loads data */
+		setTimeout(function () {
+			chart.load({
+					columns: dataArray
+			});
+		}, 2500);
+
+
+
+
+	</script>
+</body>
+</html>
