@@ -3,16 +3,24 @@
 	/* Data to be fed initially */
 	var rawData = {
 		"KYC_status": {
-			"inprogress":"204, 170",
-			"clean": "103",
-			"str": "260,340,10",
-			"whitelist": "150",
-			"falsepossitive": "65,5"
+			"inprogress": {
+				"wf1": 20,
+				"wf2": 10,
+				"wf5": 10,
+				"wf7": 10
+			},
+			"clean": {
+				"wf1": 10
+			},
+			"whitelist": {
+				"wf3": 30,
+				"wf5": 25,
+				"wf2": 25,
+			}
 		}
 	};
 
-	/* returns the array of statuses & their total */
-	var cleanData = getformattedData( rawData );
+	var cleanData = getformattedData( rawData, true );
 
 	/* Init chart */
 	var chart = c3.generate({
@@ -24,35 +32,33 @@
 			left: 10
 		},
 		data: {
-			columns: cleanData.payload,
+			json: cleanData.payload,
 			type : 'donut',
-			onclick: function(d, i) { console.log("onclick", d, i); },
-			onmouseover: function(d, i) { console.log("onmouseover", d, i); },
-			onmouseout: function(d, i) { console.log("onmouseout", d, i); }
 		},
 		donut: {
 			title: "Total: " + cleanData.total, /* Total here */
 			label: {
 				format: function( val, ratio, id ) {
-	//						return Math.round(ratio * 100) + "%"; // to return percentage
 					return val;
-				}
-			}
-		},
-		legend: {
-			item: {
-				onclick: function(id) {
-
 				}
 			}
 		},
 		tooltip: {
 			format: {
 				title: function(d) {
-					return 'Workflows';
+					return 'Status';
 				},
 				value: function(val, ratio, id) {
-					return rawData.KYC_status[id];
+
+					var cleanData = getformattedData( rawData, false );
+					var workflows = cleanData.payload[id];
+					/*var text = "", status = rawData.KYC_status[id];
+					for(var workflows = Object.keys(status), i = 0, end = workflows.length; i < end; i++) {
+						var workflow = workflows[i], count = status[workflow];
+
+						text += workflow + ": " + count + (i == (workflows.length - 1) ? "": ", ");
+					}*/
+					return workflows.join(',');
 				}
 			}
 		},
@@ -61,51 +67,30 @@
 		}
 	});
 
-	/* Dynamically loads data after a timeout */
-	setTimeout(function () {
-		rawData = {
-			"KYC_status": {
-				inprogress: [20, 10],
-				clean: [10],
-				str:[20,30,10],
-				whitelist:[10],
-				falsepossitive:[5,5]
-			}
-		};
-		cleanData = getformattedData( rawData );
-		chart.load({
-			columns: cleanData.payload,
-			done: function() {
-				// To update the total when the data changes
-				d3.select(".chart_graphic .c3-chart-arcs-title").node().innerHTML = "Total: " + cleanData.total;
-			}
-		});
-	}, 2500);
-
 })();
 
 /* getformattedData
  * @param: rawData
  * @return: data with the status payload and total
 */
-function getformattedData( rawData ) {
-	var kyc = rawData.KYC_status, data = {}, grandTotal = 0, numArr, dataArray = [];
-	for (var status in kyc) {
-		if ( kyc.hasOwnProperty( status ) ) {
-			if ( typeof( kyc[status]) !== "object" ) {
-				numArr = kyc[status].split(',')
-			} else {
-				numArr = kyc[status];
-			}
-			var subTotal = parseInt(numArr.reduce(function(total, num) {
-				return parseInt(total) + parseInt(num);
-			}));
-			var arr = [status, subTotal];
-			dataArray.push(arr);
-			grandTotal += subTotal;
+function getformattedData( rawData, isGetCount ) {
+
+	var statuses = rawData.KYC_status, payload = {}, data = {total: 0, payload: {}};
+	for(var key in statuses) {
+		var status = statuses[key];
+
+		if ( isGetCount ) {
+			// This creates an array of status count for each workflow
+			data.payload[key] = Object.keys(status).map(
+				function(workflow) {
+					return status[workflow];
+				}
+			);
+			data.total += parseInt(data.payload[key].reduce(function(total, num) { return parseInt(total) + parseInt(num); }));
+		} else {
+			// This creates an array of workflows for each status
+			data.payload[key] = Object.keys(status);
 		}
 	}
-	data.payload = dataArray;
-	data.total = grandTotal;
 	return data;
 }
