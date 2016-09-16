@@ -4,13 +4,50 @@ body {
 	margin: 0;
 	padding: 20px;
 }
+.chart_container {
+	max-width: 900px;
+	margin: 0 auto;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+}
+.chart_container:after {
+	content: "";
+	display: table;
+  clear: both;
+}
 .chart {
-	background: #CFD8DC;
-	width: 300px;
+	float: left;
+	padding: 0 10px;
+	margin-bottom: 10px;
+	box-sizing: border-box;
+}
+.col-4 {
+	width: 33.33%;
+}
+.col-8 {
+	width: 66.66%;
 }
 .chart_title {
 	margin: 0;
 	padding: 10px;
 	color: #fff;
-	background: #607D8B;
+	text-transform: uppercase;
 }
+.chart.donut > .chart_title {
+	background: #183249;
+}
+.chart.bar > .chart_title {
+	background: #49182A;
+}
+.chart.donut > .chart_graphic {
+	background: #D9E6F2;
+}
+.chart.bar > .chart_graphic {
+	background: #F2D9E2;
+}
+@media (max-width: 640px) {
+	.col-4, .col-8 {
+		width: 100%;
+	}
+}
+

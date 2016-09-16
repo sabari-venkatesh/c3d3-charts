@@ -16,15 +16,25 @@
 				"wf3": 30,
 				"wf5": 25,
 				"wf2": 25,
+			},
+			"str": {
+				"wf2": 30,
+				"wf5": 15,
+				"wf4": 80,
+			},
+			"falsepositive": {
+				"wf1": 18,
+				"wf4": 12,
+				"wf6": 3,
 			}
 		}
 	};
 
 	var cleanData = getformattedData( rawData, true );
 
-	/* Init chart */
-	var chart = c3.generate({
-		bindto: '.chart_graphic',
+	/* Init donut chart */
+	var donutChart = c3.generate({
+		bindto: '#chart_donut .chart_graphic',
 		padding: {
 			top: 10,
 			bottom: 10,
@@ -40,6 +50,14 @@
 			label: {
 				format: function( val, ratio, id ) {
 					return val;
+				}
+			}
+		},
+		legend: {
+			item: {
+				onclick: function(id) {
+					donutChart.toggle(id);
+					d3.select(".chart_graphic .c3-chart-arcs-title").node().innerHTML = "Total " +  getTotal(donutChart.data.shown());
 				}
 			}
 		},
@@ -64,10 +82,52 @@
 		},
 		color: {
 			pattern: ['#7F1637', '#047878', '#FFB733', '#F57336', '#C22121']
+		},
+		onrendered: function() {
+
 		}
 	});
 
+	/* Init bar chart */
+	var barChart = c3.generate({
+		bindto: '#chart_bar .chart_graphic',
+		data: {
+			json: {
+				"Incomplete": 30,
+				"Complete": 100,
+				"Approved": 436,
+				"Rejected": 1050,
+				"Approval Pending": 0,
+				"Rejection Pending": 58,
+			},
+			type: 'bar'
+		},
+    bar: {
+			width: {
+					ratio: 0.5
+			}
+    },
+		tooltip: {
+			format: {
+				title: function(d) {
+					return 'Status';
+				},
+			},
+			grouped: false
+		},
+	})
+
 })();
+
+function getTotal(data) {
+	var total = 0;
+	for(var i in data) {
+		var values = Object.keys(data[i].values).map(function(j) {return data[i].values[j].value});
+		total += parseInt(values.reduce(function(t,n) { return t+n; }));
+	}
+
+	return total;
+}
 
 /* getformattedData
  * @param: rawData
