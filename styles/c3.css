@@ -101,6 +101,7 @@
 
 /*-- Tooltip --*/
 .c3-tooltip-container {
+	min-width: 300px;
   z-index: 10; }
 
 .c3-tooltip {
